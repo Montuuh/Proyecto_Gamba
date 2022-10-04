@@ -8,24 +8,19 @@ public static class Uploader
 {
     public static IEnumerator UploadNewPlayer(string name, string country, DateTime dateTime)
     {
-        WWWForm form = new WWWForm();
-        form.AddField("name", name);
-        form.AddField("country", country);
-        form.AddField("dateTime", dateTime.ToString());
+        List<IMultipartFormSection> form = new List<IMultipartFormSection>();
+        form.Add(new MultipartFormDataSection("name=" + name + "&country=" + country + "&dateTime=" + dateTime.ToString()));
 
-        using (UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~davidmm24/NewPlayer.php", form))
+        UnityWebRequest www = UnityWebRequest.Post("https://citmalumnes.upc.es/~davidmm24/NewPlayer.php", form);
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
         {
-            www.downloadHandler = new DownloadHandlerBuffer();
-            yield return www.SendWebRequest();
-
-            if (www.isNetworkError || www.isHttpError)
-            {
-                Debug.Log(www.error);
-            }
-            else
-            {
-                Debug.Log("Form upload complete! Response text from the server = " + www.downloadHandler.text);
-            }
+            Debug.Log(www.error);
+        }
+        else
+        {
+            Debug.Log("Form upload complete! Response text from the server = " + www.downloadHandler.text);
         }
     }
 }
