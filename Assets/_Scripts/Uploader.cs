@@ -25,7 +25,7 @@ public static class Uploader
         form.AddField("function", function);
         form.AddField("name", name);
         form.AddField("country", country);
-        form.AddField("dateTime", dateTime.ToString());
+        form.AddField("dateTime", dateTime.ToString("yyyy-MM-dd HH:mm:ss"));
 
         using (UnityWebRequest www = UnityWebRequest.Post(serverPath + userPath + phpFile, form))
         {
@@ -44,7 +44,7 @@ public static class Uploader
                 }
                 catch
                 {
-                    Debug.Log("Error parsing last player ID: Response " + www.downloadHandler.text);
+                    Debug.Log("[ERROR] parsing last player ID: Response " + www.downloadHandler.text);
                 }
                     
 
@@ -58,24 +58,20 @@ public static class Uploader
     // !NEW PLAYER
 
     // NEW SESSION
-    public static IEnumerator UploadNewSession(DateTime dateTime, string sessionType)
+    public static IEnumerator UploadSessions(DateTime dateTime, string sessionType)
     {
-        if (sessionType == "start")
-            function = "start";
-        else if (sessionType == "end")
-            function = "end";
-        else
-            Debug.Log("Error: sessionType not recognized");
+        function = sessionType;
 
         Debug.Log("Sending session " + function + " to server at " + dateTime);
 
         phpFile = "NewSession.php";
         
         WWWForm form = new WWWForm();
-        form.AddField("playerID", player.playerID);
-        form.AddField("dateTime", dateTime.ToString());
-        if (function == "end")
+        if (function == "StartSession")
+            form.AddField("playerID", player.playerID);
+        if (function == "EndSession")
             form.AddField("sessionID", player.GetLastSessionID());
+        form.AddField("dateTime", dateTime.ToString("yyyy-MM-dd HH:mm:ss"));
         form.AddField("function", function);
 
         using (UnityWebRequest www = UnityWebRequest.Post(serverPath + userPath + phpFile, form))
@@ -89,13 +85,20 @@ public static class Uploader
             }
             else
             {
-                if (function == "start")
+                if (function == "StartSession")
                 {
-                    int lastSessionID = int.Parse(www.downloadHandler.text);
-                    player.SetLastSessionID(lastSessionID);
-                    CallbackEvents.OnNewSessionCallback?.Invoke((uint)player.GetLastSessionID());
+                    try
+                    {
+                        int lastSessionID = int.Parse(www.downloadHandler.text);
+                        player.SetLastSessionID(lastSessionID);
+                        CallbackEvents.OnNewSessionCallback?.Invoke((uint)player.GetLastSessionID());
+                    }
+                    catch
+                    {
+                        Debug.Log("[ERROR] parsing last session ID: Response " + www.downloadHandler.text);
+                    }
                 }
-                else if (function == "end")
+                else if (function == "EndSession")
                 {
                     CallbackEvents.OnEndSessionCallback?.Invoke((uint)player.GetLastSessionID());
                 }
@@ -113,7 +116,7 @@ public static class Uploader
         WWWForm form = new WWWForm();
         form.AddField("playerID", player.playerID);
         form.AddField("sessionID", player.GetLastSessionID());
-        form.AddField("dateTime", dateTime.ToString());
+        form.AddField("dateTime", dateTime.ToString("yyyy-MM-dd HH:mm:ss"));
         form.AddField("productID", productID);
         form.AddField("function", function);
 

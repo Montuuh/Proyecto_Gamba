@@ -19,10 +19,10 @@ public class NewSession : MonoBehaviour
 
     public void AddStartSession(DateTime dateTime)
     {
-        StartCoroutine(Uploader.UploadNewSession(dateTime, "start"));
+        StartCoroutine(Uploader.UploadSessions(dateTime, "StartSession"));
     }
     public void AddEndSession(DateTime dateTime)
     {
-        StartCoroutine(Uploader.UploadNewSession(dateTime, "end"));
+        StartCoroutine(Uploader.UploadSessions(dateTime, "EndSession"));
     }
 }
