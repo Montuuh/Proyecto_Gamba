@@ -11,6 +11,7 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 public class Player
 {
     public int playerID;
+    public int lastSessionID;
     public string name;
     public string country;
     public string dateTime;
@@ -18,12 +19,16 @@ public class Player
     public Player(int playerID, string name, string country, string dateTime)
     {
         this.playerID = playerID;
+        this.lastSessionID = 0;
         this.name = name;
         this.country = country;
         this.dateTime = dateTime;
 
         Debug.Log("Player created: playerID = " + playerID + " name = " + name + " country = " + country + " dateTime = " + dateTime);
     }
+
+    public int GetLastSessionID() { return lastSessionID; }
+    public void SetLastSessionID(int lastSessionID) { this.lastSessionID = lastSessionID; }
 }
 
 public class NewPlayer : MonoBehaviour
